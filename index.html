@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hs Anime Duniya — Ultimate Anime & AMV Streaming</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="assets/js/tailwind.config.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="min-h-screen flex flex-col selection:bg-purple-500 selection:text-white">
+
+    <!-- Toast Notification System -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-zinc-900 border border-purple-500/40 text-white px-5 py-3.5 rounded-2xl shadow-2xl shadow-purple-950/50 translate-y-24 opacity-0 pointer-events-none">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-purple-400 text-lg"></i>
+        <span id="toastMsg" class="text-sm font-medium">Notification message</span>
+    </div>
+
+    <header class="h-16 border-b border-zinc-800/80 bg-[#06060a]/90 backdrop-blur-xl sticky top-0 z-40 flex items-center justify-between px-4 lg:px-6">
+        <div class="flex items-center gap-4">
+            <button onclick="toggleSidebar()" class="p-2.5 text-zinc-400 hover:text-white hover:bg-zinc-800/60 rounded-xl transition">
+                <i class="fa-solid fa-bars text-lg"></i>
+            </button>
+            <a href="#" onclick="switchTab('homeTab')" class="flex items-center gap-3 group">
+                <!-- ANIMATED LOGO ICON WITH MINI TANJIRO BADGE -->
+                <div class="relative w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-pink-500 to-cyan-400 p-0.5 shadow-lg shadow-purple-500/40 animated-logo-glow">
+                    <div class="w-full h-full bg-[#08080c] rounded-[10px] flex items-center justify-center relative overflow-hidden">
+                        <i class="fa-solid fa-dragon text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 text-xl group-hover:rotate-12 transition-transform"></i>
+                        <img src="assets/images/tanjiro_mini.gif" alt="Tanjiro" class="absolute inset-0 w-full h-full object-cover opacity-80 rounded-[10px] pointer-events-none" onError="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-black text-lg lg:text-xl tracking-tight text-white leading-none">
+                        <span class="gradient-text-animated">Hs Anime</span> <span class="text-cyan-400">Duniya</span>
+                    </span>
+                    <span class="text-[9px] font-semibold tracking-widest text-zinc-400 uppercase">World of Anime</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="flex-1 max-w-xl mx-4 hidden md:flex items-center">
+            <div class="w-full relative flex items-center">
+                <input type="text" id="searchInput" onkeyup="handleSearch(event)" placeholder="Search Hs Anime Duniya series, movies, AMV..." class="w-full bg-zinc-900/90 border border-zinc-800 focus:border-purple-500 rounded-full py-2 pl-5 pr-12 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all">
+                <button onclick="executeSearch()" class="absolute right-2 p-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 text-white rounded-full w-8 h-8 flex items-center justify-center transition-all shadow-md shadow-purple-600/30">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Dynamic User Auth & Upload Actions -->
+        <div class="flex items-center gap-3">
+            <button onclick="requestUploadModal()" class="hidden sm:flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold text-xs px-4 py-2.5 rounded-full shadow-lg shadow-purple-600/30 transition-all hover:scale-105">
+                <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+                <span>Upload Video</span>
+            </button>
+
+            <!-- Admin Badge if Logged in as Owner -->
+            <button id="ownerAdminBtn" onclick="openAdminPanel()" class="hidden bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500 hover:text-black font-bold text-xs px-3 py-2 rounded-full transition flex items-center gap-1.5">
+                <i class="fa-solid fa-shield-halved"></i> Owner Dashboard <span id="pendingCountBadge" class="bg-amber-500 text-black px-1.5 py-0.2 rounded-full text-[10px]">0</span>
+            </button>
+
+            <div id="authNavBox">
+                <!-- Injected via JavaScript -->
+            </div>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden relative">
+        <aside id="sidebar" class="w-64 border-r border-zinc-800/60 bg-[#06060a] flex flex-col justify-between transition-all duration-300 z-30 fixed lg:relative inset-y-0 left-0 -translate-x-full lg:translate-x-0">
+            <div class="p-4 space-y-6 overflow-y-auto">
+                <div class="space-y-1">
+                    <button onclick="switchTab('homeTab')" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-zinc-300 hover:bg-purple-500/10 hover:text-purple-400 transition group active" data-tab="homeTab">
+                        <i class="fa-solid fa-house text-lg group-hover:scale-110 transition-transform"></i>
+                        <span>Home Feeds</span>
+                    </button>
+
+                    <button onclick="switchTab('shortsTab')" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-zinc-300 hover:bg-pink-500/10 hover:text-pink-400 transition group" data-tab="shortsTab">
+                        <i class="fa-solid fa-bolt text-lg text-pink-500 group-hover:scale-125 transition-transform animate-pulse"></i>
+                        <span>Anime Shorts</span>
+                    </button>
+
+                    <button onclick="switchTab('historyTab')" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-zinc-300 hover:bg-cyan-500/10 hover:text-cyan-400 transition group" data-tab="historyTab">
+                        <i class="fa-solid fa-clock-rotate-left text-lg text-cyan-400 group-hover:scale-110 transition-transform"></i>
+                        <span>Watch History</span>
+                    </button>
+
+                    <button onclick="switchTab('savedTab')" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-zinc-300 hover:bg-amber-500/10 hover:text-amber-400 transition group" data-tab="savedTab">
+                        <i class="fa-solid fa-bookmark text-lg text-amber-400 group-hover:scale-110 transition-transform"></i>
+                        <span>Saved Anime</span>
+                    </button>
+
+                    <button onclick="switchTab('channelsTab')" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-zinc-300 hover:bg-purple-500/10 hover:text-purple-400 transition group" data-tab="channelsTab">
+                        <i class="fa-solid fa-tv text-lg group-hover:scale-110 transition-transform"></i>
+                        <span>Explore Channels</span>
+                    </button>
+                </div>
+
+                <div class="border-t border-zinc-800/80 pt-4 space-y-1">
+                    <div class="px-4 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">My Library</div>
+
+                    <button onclick="requestChannelModal()" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-zinc-300 hover:bg-zinc-800/60 transition group">
+                        <i class="fa-solid fa-circle-plus text-lg text-purple-400 group-hover:scale-110 transition-transform"></i>
+                        <span>Launch Channel</span>
+                    </button>
+
+                    <button onclick="switchTab('subTab')" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-zinc-300 hover:bg-zinc-800/60 transition group" data-tab="subTab">
+                        <i class="fa-solid fa-heart text-lg text-pink-400 group-hover:scale-110 transition-transform"></i>
+                        <span>Subscriptions</span>
+                    </button>
+                </div>
+
+                <div class="border-t border-zinc-800/80 pt-4">
+                    <div class="px-4 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Followed Channels</div>
+                    <div id="sidebarSubsList" class="space-y-1">
+                        <!-- Dynamic sub list -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-zinc-800/60 text-xs text-zinc-500 flex flex-col gap-1">
+                <span class="font-bold text-zinc-400">Owner Contact</span>
+                <a href="mailto:hshasibhasan@gmail.com" class="text-[11px] text-purple-400 hover:underline">hshasibhasan@gmail.com</a>
+                <a href="https://hshasibhasan.blogspot.com" target="_blank" class="text-[11px] text-cyan-400 hover:underline">hshasibhasan.blogspot.com</a>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto p-4 lg:p-6 pb-24" id="mainScroll">
+
+            <!-- CATEGORY CHIPS BAR -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-4 mb-4 scrollbar-none" id="categoryChips">
+                <button onclick="filterCategory('All')" class="cat-chip px-4 py-1.5 rounded-full text-xs font-semibold bg-purple-600 text-white shadow-lg shadow-purple-600/30 whitespace-nowrap transition">All Anime</button>
+                <button onclick="filterCategory('AMV')" class="cat-chip px-4 py-1.5 rounded-full text-xs font-semibold bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 whitespace-nowrap transition">AMV Mix</button>
+                <button onclick="filterCategory('Shonen')" class="cat-chip px-4 py-1.5 rounded-full text-xs font-semibold bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 whitespace-nowrap transition">Shonen</button>
+                <button onclick="filterCategory('Action')" class="cat-chip px-4 py-1.5 rounded-full text-xs font-semibold bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 whitespace-nowrap transition">Action</button>
+                <button onclick="filterCategory('Isekai')" class="cat-chip px-4 py-1.5 rounded-full text-xs font-semibold bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 whitespace-nowrap transition">Isekai</button>
+                <button onclick="filterCategory('Romance')" class="cat-chip px-4 py-1.5 rounded-full text-xs font-semibold bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 whitespace-nowrap transition">Romance</button>
+            </div>
+
+            <!-- TAB: CHANNEL PROFILE PAGE -->
+            <div id="channelProfileTab" class="tab-content space-y-6">
+                <button onclick="switchTab('channelsTab')" class="text-xs font-semibold text-zinc-400 hover:text-purple-400 flex items-center gap-2 transition mb-2">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Channels
+                </button>
+
+                <!-- Channel Header Banner Card -->
+                <div class="glass-card rounded-3xl p-6 sm:p-8 border border-purple-500/30 relative overflow-hidden flex flex-col md:flex-row items-center md:items-start gap-6">
+                    <img id="cpAvatar" src="" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-purple-500 shadow-xl z-10">
+                    
+                    <div class="flex-1 text-center md:text-left z-10 space-y-2">
+                        <h2 id="cpName" class="text-2xl sm:text-3xl font-extrabold text-white flex items-center justify-center md:justify-start gap-2">
+                            Channel Name
+                        </h2>
+                        <span id="cpHandle" class="text-xs font-mono text-purple-400 block">@handle</span>
+                        <p id="cpBio" class="text-xs text-zinc-300 max-w-2xl leading-relaxed">Channel bio goes here...</p>
+                        
+                        <div class="flex items-center justify-center md:justify-start gap-4 pt-2">
+                            <span id="cpSubCount" class="text-xs font-semibold text-zinc-400">0 Subscribers</span>
+                            <span id="cpVidCount" class="text-xs font-semibold text-cyan-400">0 Videos</span>
+                        </div>
+                    </div>
+
+                    <div class="z-10">
+                        <button id="cpSubBtn" onclick="" class="bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm px-6 py-2.5 rounded-full shadow-lg shadow-purple-600/30 transition">
+                            Subscribe
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Channel Videos Title & Grid -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-film text-purple-400"></i> Uploaded Content
+                    </h3>
+                    <div id="channelVideosGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 1: HOME FEEDS -->
+            <div id="homeTab" class="tab-content active space-y-8">
+                <!-- Trending Featured Banner -->
+                <div class="relative rounded-3xl overflow-hidden glass-card border border-purple-500/30 p-6 lg:p-8 flex flex-col lg:flex-row items-center justify-between gap-6 group shadow-2xl">
+                    <div class="relative z-10 max-w-xl space-y-3">
+                        <span class="bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-400 text-white text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg shadow-pink-500/30">🔥 Welcome to Hs Anime Duniya</span>
+                        <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">Solo Leveling: Shadow Monarch Awakening</h2>
+                        <p class="text-zinc-400 text-sm leading-relaxed">Experience high bitrate 4K anime music videos and series posters with approval-enabled creator content.</p>
+                        <div class="flex items-center gap-3 pt-2">
+                            <button onclick="watchVideo('v1')" class="bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-500 hover:opacity-90 text-white font-semibold px-6 py-2.5 rounded-full shadow-xl shadow-purple-600/40 flex items-center gap-2 hover:scale-105 transition-all text-sm">
+                                <i class="fa-solid fa-play text-xs"></i> Watch Now
+                            </button>
+                            <button onclick="toggleSaveAnime('v1')" class="bg-zinc-800/80 hover:bg-zinc-700 text-amber-400 font-semibold px-5 py-2.5 rounded-full text-sm border border-zinc-700 transition flex items-center gap-2">
+                                <i class="fa-solid fa-bookmark"></i> Save Anime
+                            </button>
+                        </div>
+                    </div>
+                    <div class="relative w-full lg:w-80 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border border-zinc-700/60 max-h-72">
+                        <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                    </div>
+                </div>
+
+                <!-- MOST WATCHED FILMS / ANIME CAROUSEL -->
+                <div class="space-y-4 pt-2">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-extrabold text-white flex items-center gap-2 tracking-wide">
+                            <span class="w-2.5 h-6 bg-gradient-to-b from-purple-500 via-pink-500 to-cyan-400 rounded-full inline-block"></span>
+                            Most-Watched Anime Films
+                        </h3>
+                        <span class="text-xs text-zinc-400 font-medium">Top 5 in Hs Anime Duniya</span>
+                    </div>
+
+                    <div id="mostWatchedRow" class="flex gap-4 sm:gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-purple-600/50 scrollbar-track-zinc-900">
+                        <!-- Dynamically populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Trending Anime Grid -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-fire text-amber-500"></i> All Recommended Content
+                        </h3>
+                    </div>
+                    
+                    <div id="videosGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: WATCH PLAYER VIEW -->
+            <div id="watchTab" class="tab-content space-y-6">
+                <button onclick="switchTab('homeTab')" class="text-xs font-semibold text-zinc-400 hover:text-purple-400 flex items-center gap-2 transition">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Home
+                </button>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-8 space-y-5">
+                        <div class="relative p-1 rounded-2xl transition-all duration-500" id="ambientWrapper">
+                            <div class="ambient-layer" id="ambientLayer"></div>
+                            <div class="relative z-10 aspect-video w-full bg-black rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl">
+                                <video id="activeVideoPlayer" controls class="w-full h-full object-cover">
+                                    <source src="" type="video/mp4">
+                                </video>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <h1 id="playerTitle" class="text-xl sm:text-2xl font-extrabold text-white leading-snug">Video Title</h1>
+
+                            <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-zinc-800/80">
+                                <div class="flex items-center gap-3">
+                                    <img id="playerChannelAvatar" src="" class="w-11 h-11 rounded-full object-cover border border-purple-500/40">
+                                    <div>
+                                        <h4 id="playerChannelName" class="font-bold text-sm text-zinc-100 flex items-center gap-1.5">
+                                            Channel Name
+                                        </h4>
+                                        <span id="playerSubCount" class="text-xs text-zinc-400">0 subscribers</span>
+                                    </div>
+                                    <button id="playerSubBtn" onclick="toggleSubscribeActive()" class="ml-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs px-4 py-2 rounded-full transition shadow-lg shadow-purple-600/30">
+                                        Subscribe
+                                    </button>
+                                </div>
+
+                                <div class="flex items-center gap-2 text-xs">
+                                    <button onclick="toggleActiveLike()" id="playerLikeBtn" class="px-4 py-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 rounded-full font-semibold text-zinc-200 flex items-center gap-2 transition">
+                                        <i class="fa-regular fa-thumbs-up text-purple-400"></i>
+                                        <span id="playerLikeCount">0</span>
+                                    </button>
+
+                                    <button onclick="toggleSaveCurrentVideo()" id="playerSaveBtn" class="px-4 py-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 rounded-full font-semibold text-amber-400 flex items-center gap-2 transition">
+                                        <i class="fa-solid fa-bookmark"></i> Save
+                                    </button>
+
+                                    <button onclick="openShareModal()" class="px-4 py-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 rounded-full font-semibold text-zinc-200 flex items-center gap-2 transition">
+                                        <i class="fa-solid fa-share text-cyan-400"></i> Share
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="bg-zinc-900/80 border border-zinc-800/80 rounded-2xl p-4 text-xs text-zinc-300 space-y-2">
+                                <div class="flex items-center gap-3 font-semibold text-zinc-400">
+                                    <span id="playerViews">0 views</span>
+                                    <span id="playerDate">Just now</span>
+                                    <span id="playerCategory" class="text-purple-400">#HsAnimeDuniya</span>
+                                </div>
+                                <p id="playerDesc" class="leading-relaxed">Description body...</p>
+                            </div>
+
+                            <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-5 space-y-4 shadow-xl">
+                                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800/80 pb-3">
+                                    <div>
+                                        <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+                                            <i class="fa-solid fa-list-ol text-cyan-400"></i> Episodes & Resources
+                                        </h3>
+                                        <span class="text-[11px] text-zinc-400">Streaming in Hs Anime Duniya Portal</span>
+                                    </div>
+
+                                    <div class="flex items-center gap-2">
+                                        <select id="audioSelect" onchange="changeEpisodeAudio(this.value)" class="bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:border-purple-500">
+                                            <option value="English Dub">English Dub</option>
+                                            <option value="Hindi Dub" selected>Hindi Dub</option>
+                                            <option value="Japanese Sub">Japanese Sub</option>
+                                        </select>
+
+                                        <select id="seasonSelect" onchange="changeSeason(this.value)" class="bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:border-purple-500">
+                                            <option value="1">Season 01</option>
+                                            <option value="2">Season 02</option>
+                                            <option value="3">Season 03</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div id="episodesGrid" class="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2 pt-1 max-h-64 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-purple-600">
+                                    <!-- Injected via JS -->
+                                </div>
+                            </div>
+
+                            <!-- Comments -->
+                            <div class="space-y-4 pt-2">
+                                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                    Comments <span id="commentCount" class="text-xs text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full">0</span>
+                                </h3>
+
+                                <div class="flex gap-3">
+                                    <img id="currentCommentAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop" class="w-9 h-9 rounded-full object-cover">
+                                    <div class="flex-1 flex gap-2">
+                                        <input type="text" id="commentInput" placeholder="Add a comment on Hs Anime Duniya..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-xs text-zinc-200 focus:outline-none focus:border-purple-500">
+                                        <button onclick="postComment()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs px-4 py-2 rounded-xl font-semibold transition">Comment</button>
+                                    </div>
+                                </div>
+
+                                <div id="commentsList" class="space-y-3 pt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-4 space-y-4">
+                        <h3 class="text-sm font-bold text-zinc-300 uppercase tracking-wider">Up Next in Hs Anime Duniya</h3>
+                        <div id="relatedVideos" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: SAVED ANIME VIEW -->
+            <div id="savedTab" class="tab-content space-y-6">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bookmark text-amber-400"></i> Saved Anime Collection
+                    </h2>
+                    <p class="text-xs text-zinc-400">Videos and posters saved in Hs Anime Duniya</p>
+                </div>
+
+                <div id="savedGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <!-- TAB: WATCH HISTORY -->
+            <div id="historyTab" class="tab-content space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-cyan-400"></i> Watch History
+                        </h2>
+                        <p class="text-xs text-zinc-400">Recently played anime content in Hs Anime Duniya</p>
+                    </div>
+                    <button onclick="clearHistory()" class="bg-zinc-800 hover:bg-rose-600 hover:text-white text-zinc-400 text-xs font-semibold px-4 py-2 rounded-xl border border-zinc-700 transition">
+                        Clear History
+                    </button>
+                </div>
+
+                <div id="historyGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <!-- TAB 4: SHORTS REELS -->
+            <div id="shortsTab" class="tab-content">
+                <div class="max-w-md mx-auto relative h-[78vh] sm:h-[82vh] bg-black rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl flex items-center justify-center">
+                    <video id="shortsPlayer" loop autoplay muted class="w-full h-full object-cover cursor-pointer" onclick="toggleShortsPlay()">
+                        <source src="" type="video/mp4">
+                    </video>
+
+                    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 pointer-events-none"></div>
+
+                    <div class="absolute right-3 bottom-16 flex flex-col items-center gap-5 z-20">
+                        <button onclick="likeCurrentShort()" class="flex flex-col items-center gap-1 group">
+                            <div id="shortsLikeBox" class="w-12 h-12 rounded-full bg-zinc-900/80 backdrop-blur border border-white/10 flex items-center justify-center text-white text-lg group-hover:scale-110 transition">
+                                <i id="shortsLikeIcon" class="fa-solid fa-heart text-white"></i>
+                            </div>
+                            <span id="shortsLikeCount" class="text-[11px] font-bold text-white shadow">0</span>
+                        </button>
+                    </div>
+
+                    <div class="absolute left-4 right-16 bottom-5 z-20 space-y-2 text-white">
+                        <div class="flex items-center gap-2.5">
+                            <img id="shortsChannelAvatar" src="" class="w-9 h-9 rounded-full object-cover border border-purple-400">
+                            <span id="shortsChannelName" class="font-bold text-sm drop-shadow">@channel</span>
+                        </div>
+                        <p id="shortsTitle" class="text-xs font-medium text-zinc-200 line-clamp-2 drop-shadow">Hs Anime Duniya short title...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: EXPLORE CHANNELS -->
+            <div id="channelsTab" class="tab-content space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-white">Approved Creator Channels</h2>
+                        <p class="text-xs text-zinc-400">Discover verified Hs Anime Duniya creators</p>
+                    </div>
+                    <button onclick="requestChannelModal()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow transition">
+                        + Request Channel
+                    </button>
+                </div>
+
+                <div id="channelsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Channels injected via JS -->
+                </div>
+            </div>
+
+            <!-- TAB 6: SUBSCRIPTIONS -->
+            <div id="subTab" class="tab-content space-y-6">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white">Subscribed Channels</h2>
+                    <p class="text-xs text-zinc-400">Latest updates from channels you follow in Hs Anime Duniya</p>
+                </div>
+
+                <div id="subscribedGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Floating Bottom Navigation Bar (App Bar) -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-[#060609]/95 backdrop-blur-xl border-t border-cyan-500/20 py-2 px-4 shadow-[0_-8px_25px_rgba(0,0,0,0.8)]">
+        <div class="max-w-xl mx-auto flex items-center justify-around relative">
+            
+            <button onclick="handleBottomNav('Movies', this)" class="nav-bottom-item flex flex-col items-center gap-1 group py-1 px-3 transition-all relative">
+                <i class="fa-solid fa-film text-xl text-cyan-400 group-hover:scale-110 group-hover:text-cyan-300 transition-transform"></i>
+                <span class="text-[10px] font-bold text-zinc-400 group-hover:text-cyan-300 tracking-wider">MOVIES</span>
+            </button>
+
+            <button onclick="handleBottomNav('Series', this)" class="nav-bottom-item flex flex-col items-center gap-1 group py-1 px-3 transition-all relative">
+                <i class="fa-solid fa-layer-group text-xl text-cyan-400 group-hover:scale-110 group-hover:text-cyan-300 transition-transform"></i>
+                <span class="text-[10px] font-bold text-zinc-400 group-hover:text-cyan-300 tracking-wider">SERIES</span>
+            </button>
+
+            <button onclick="handleBottomNav('Home', this)" class="nav-bottom-item flex flex-col items-center gap-1 group py-1 px-4 relative active-nav-tab">
+                <div class="w-10 h-10 -mt-5 bg-gradient-to-tr from-cyan-500 to-purple-600 rounded-full flex items-center justify-center p-0.5 shadow-lg shadow-cyan-500/40 group-hover:scale-110 transition-transform">
+                    <div class="w-full h-full bg-[#08080c] rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-dragon text-lg text-cyan-400"></i>
+                    </div>
+                </div>
+                <span class="text-[10px] font-extrabold text-cyan-400 tracking-wider mt-0.5">HOME</span>
+                <div id="navActiveIndicator" class="absolute -bottom-2 left-0 right-0 h-0.5 bg-cyan-400 shadow-[0_0_10px_#06b6d4]"></div>
+            </button>
+
+            <button onclick="handleBottomNav('Anime', this)" class="nav-bottom-item flex flex-col items-center gap-1 group py-1 px-3 transition-all relative">
+                <i class="fa-solid fa-user-ninja text-xl text-cyan-400 group-hover:scale-110 group-hover:text-cyan-300 transition-transform"></i>
+                <span class="text-[10px] font-bold text-zinc-400 group-hover:text-cyan-300 tracking-wider">ANIME</span>
+            </button>
+
+            <button onclick="handleBottomNav('Search', this)" class="nav-bottom-item flex flex-col items-center gap-1 group py-1 px-3 transition-all relative">
+                <i class="fa-solid fa-magnifying-glass text-xl text-cyan-400 group-hover:scale-110 group-hover:text-cyan-300 transition-transform"></i>
+                <span class="text-[10px] font-bold text-zinc-400 group-hover:text-cyan-300 tracking-wider">SEARCH</span>
+            </button>
+
+        </div>
+    </nav>
+
+    <!-- MODAL 1: AUTHENTICATION -->
+    <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+        <div class="w-full max-w-md bg-[#12121b] border border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative animate-float-up">
+            <button onclick="closeModal('authModal')" class="absolute top-5 right-5 text-zinc-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h3 class="text-xl font-extrabold text-white mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-user-lock text-purple-400"></i> Sign In to Hs Anime Duniya
+            </h3>
+            <p class="text-xs text-zinc-400 mb-6">Enter email to sign in (Owner: <code class="text-purple-300">hshasibhasan@gmail.com</code>)</p>
+
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="text-xs font-semibold text-zinc-400">Email Address</label>
+                    <input type="email" id="loginEmail" required placeholder="hshasibhasan@gmail.com or user@gmail.com" class="w-full bg-zinc-900 border border-zinc-800 focus:border-purple-500 rounded-xl px-4 py-3 text-sm text-zinc-100 focus:outline-none transition">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-zinc-400">Username</label>
+                    <input type="text" id="loginUsername" required placeholder="Hasib / OtakuUser" class="w-full bg-zinc-900 border border-zinc-800 focus:border-purple-500 rounded-xl px-4 py-3 text-sm text-zinc-100 focus:outline-none transition">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-500 hover:opacity-90 text-white font-bold py-3 rounded-xl shadow-lg shadow-purple-600/30 transition">
+                    Login / Continue
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: CHANNEL REQUEST FORM -->
+    <div id="channelModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+        <div class="w-full max-w-lg bg-[#12121b] border border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative animate-float-up">
+            <button onclick="closeModal('channelModal')" class="absolute top-5 right-5 text-zinc-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h3 class="text-xl font-extrabold text-white mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-paper-plane text-cyan-400"></i> Request Channel Approval
+            </h3>
+            <p class="text-xs text-zinc-400 mb-6">Channel will be reviewed & approved by owner (<b class="text-amber-400">hshasibhasan@gmail.com</b>)</p>
+
+            <form onsubmit="handleRequestChannel(event)" class="space-y-4">
+                <div>
+                    <label class="text-xs font-semibold text-zinc-400">Channel Name</label>
+                    <input type="text" id="chName" required placeholder="CyberAnime Studios" class="w-full bg-zinc-900 border border-zinc-800 focus:border-cyan-500 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-zinc-400">Handle (@name)</label>
+                    <input type="text" id="chHandle" required placeholder="@cyberanime" class="w-full bg-zinc-900 border border-zinc-800 focus:border-cyan-500 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-zinc-400">Avatar Image URL</label>
+                    <input type="url" id="chAvatar" placeholder="https://..." class="w-full bg-zinc-900 border border-zinc-800 focus:border-cyan-500 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-zinc-400">Channel Bio</label>
+                    <textarea id="chBio" rows="2" placeholder="Why do you want to start this anime channel in Hs Anime Duniya?" class="w-full bg-zinc-900 border border-zinc-800 focus:border-cyan-500 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-cyan-600/30 transition">
+                    Submit Request to Owner
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: UPLOAD REQUEST MODAL -->
+    <div id="uploadModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+        <div class="w-full max-w-lg bg-[#12121b] border border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative animate-float-up max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('uploadModal')" class="absolute top-5 right-5 text-zinc-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h3 class="text-xl font-extrabold text-white mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-cloud-arrow-up text-purple-400"></i> Submit Video / Poster Content
+            </h3>
+            <p class="text-xs text-zinc-400 mb-6">Content requires Owner Approval (<b class="text-amber-400">hshasibhasan@gmail.com</b>) before going public.</p>
+
+            <form onsubmit="handleRequestUpload(event)" class="space-y-4">
+                <div>
+                    <label class="text-xs font-semibold text-zinc-400">Select Approved Channel</label>
+                    <select id="upChannelSelect" class="w-full bg-zinc-900 border border-zinc-800 focus:border-purple-500 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none">
+                        <!-- Populated by user's approved channels -->
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-zinc-400">Anime Title</label>
+                    <input type="text" id="upTitle" required placeholder="Love in Disguise [Hindi]" class="w-full bg-zinc-900 border border-zinc-800 focus:border-purple-500 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-zinc-400">Video MP4 File URL</label>
+                    <input type="url" id="upVideoUrl" required placeholder="https://commondatastorage.googleapis.com/..." class="w-full bg-zinc-900 border border-zinc-800 focus:border-purple-500 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-zinc-400">Poster Image URL (2:3 Aspect ratio)</label>
+                    <input type="url" id="upThumb" placeholder="https://images.unsplash.com/..." class="w-full bg-zinc-900 border border-zinc-800 focus:border-purple-500 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-semibold text-zinc-400">Audio Language</label>
+                        <input type="text" id="upLang" placeholder="Hindi / Eng / Dub" value="Hindi" class="w-full bg-zinc-900 border border-zinc-800 focus:border-purple-500 rounded-xl px-4 py-2 text-sm text-zinc-100 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-zinc-400">Release Year</label>
+                        <input type="text" id="upYear" placeholder="2026" value="2026" class="w-full bg-zinc-900 border border-zinc-800 focus:border-purple-500 rounded-xl px-4 py-2 text-sm text-zinc-100 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-zinc-400">Category Tag</label>
+                    <select id="upCategory" class="w-full bg-zinc-900 border border-zinc-800 focus:border-purple-500 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none">
+                        <option value="AMV">AMV</option>
+                        <option value="Shonen">Shonen</option>
+                        <option value="Action">Action</option>
+                        <option value="Isekai">Isekai</option>
+                        <option value="Romance">Romance</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 text-white font-bold py-3 rounded-xl shadow-lg shadow-purple-600/30 transition">
+                    Send Upload Request
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4: OWNER ADMIN PANEL -->
+    <div id="adminModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+        <div class="w-full max-w-2xl bg-[#12121b] border border-amber-500/40 rounded-3xl p-6 sm:p-8 shadow-2xl relative animate-float-up max-h-[85vh] overflow-y-auto">
+            <button onclick="closeModal('adminModal')" class="absolute top-5 right-5 text-zinc-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-lg">
+                    <i class="fa-solid fa-crown"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-extrabold text-white">Owner Approval Dashboard</h3>
+                    <p class="text-xs text-amber-400">Hs Anime Duniya Admin: hshasibhasan@gmail.com</p>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div>
+                    <h4 class="text-sm font-bold text-zinc-200 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-tv text-cyan-400"></i> Pending Channel Approvals
+                    </h4>
+                    <div id="adminChannelRequests" class="space-y-3">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold text-zinc-200 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-video text-purple-400"></i> Pending Video & Poster Uploads
+                    </h4>
+                    <div id="adminUploadRequests" class="space-y-3">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHARE MODAL -->
+    <div id="shareModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+        <div class="w-full max-w-sm bg-[#12121b] border border-zinc-800 rounded-3xl p-6 shadow-2xl relative text-center">
+            <button onclick="closeModal('shareModal')" class="absolute top-4 right-4 text-zinc-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <i class="fa-solid fa-paper-plane text-3xl text-purple-400 mb-2"></i>
+            <h3 class="text-lg font-bold text-white">Share Video Poster</h3>
+            <div class="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-xl p-2 my-4">
+                <input type="text" id="shareUrlInput" readonly value="https://hsanimeduniya.io/watch?v=1" class="bg-transparent text-xs text-zinc-300 w-full px-2 outline-none">
+                <button onclick="copyShareUrl()" class="bg-purple-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg">Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
